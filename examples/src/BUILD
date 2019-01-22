@@ -39,6 +39,14 @@ embedded_reference(
 )
 
 terraform_module(
+    name = "hello-world_tf",
+    srcs = [
+        "main.tf",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+terraform_module(
     name = "hello-world_k8s",
     srcs = [
         "k8s.tf",

@@ -106,27 +106,51 @@ terraform_workspace = rule(
     outputs = module_outputs,
 )
 
+TERRAFORM_SCRIPT = """echo '#!/usr/bin/env bash
+            set -euo pipefail
+            terraform="$$BUILD_WORKSPACE_DIRECTORY/{package}/{tf_workspace_files_prefix}/.terraform/terraform.sh"
+            if [ -e "$$terraform" ]; then
+                exec "$$terraform" ${command} "$$@" <&0
+            else
+                >&2 echo "Could not find terraform wrapper, so no way to init! ($$terraform)"
+            fi
+            ' > $@"""
+
 def terraform_workspace_macro(name, **kwargs):
     terraform_workspace(
         name = name,
         **kwargs
     )
-    # TODO(ceason): create 'apply' wrapper?
+
+    native.genrule(
+        name = "%s.init" % name,
+        outs = ["%s.init.sh" % name],
+        cmd = TERRAFORM_SCRIPT.format(
+            command = "init"
+            package = native.package_name(),
+            tf_workspace_files_prefix = tf_workspace_files_prefix(),
+        ),
+        executable = True,
+    )
+
+    native.genrule(
+        name = "%s.apply" % name,
+        outs = ["%s.apply.sh" % name],
+        cmd = TERRAFORM_SCRIPT.format(
+            command = "apply"
+            package = native.package_name(),
+            tf_workspace_files_prefix = tf_workspace_files_prefix(),
+        ),
+        executable = True,
+    )
 
     # create a convenient destroy target which
     # CDs to the package dir and runs terraform destroy
     native.genrule(
         name = "%s.destroy" % name,
         outs = ["%s.destroy.sh" % name],
-        cmd = """echo '#!/usr/bin/env bash
-            set -euo pipefail
-            terraform="$$BUILD_WORKSPACE_DIRECTORY/{package}/{tf_workspace_files_prefix}/.terraform/terraform.sh"
-            if [ -e "$$terraform" ]; then
-                exec "$$terraform" destroy "$$@" <&0
-            else
-                >&2 echo "Could not find terraform wrapper, so there is nothing to destroy! ($$terraform)"
-            fi
-            ' > $@""".format(
+        cmd = TERRAFORM_SCRIPT.format(
+            command = "destroy"
             package = native.package_name(),
             tf_workspace_files_prefix = tf_workspace_files_prefix(),
         ),

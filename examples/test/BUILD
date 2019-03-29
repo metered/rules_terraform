@@ -43,3 +43,10 @@ terraform_integration_test(
     tags = ["manual"],
     terraform_workspace = ":ecs-workspace",
 )
+
+terraform_workspace(
+    name = "whoami",
+    srcs = [
+        "whoami.tf",
+    ],
+)

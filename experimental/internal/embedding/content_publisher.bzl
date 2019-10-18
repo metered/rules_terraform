@@ -116,8 +116,9 @@ def _content_publisher_impl(ctx):
 
 content_publisher = rule(
     implementation = _content_publisher_impl,
-    attrs = content_publisher_attrs + {
-        "deps": attr.label_list(aspects = [content_publisher_aspect]),
-    },
+    attrs = dict(
+        content_publisher_attrs.items(),
+        deps = attr.label_list(aspects = [content_publisher_aspect]),
+    ),
     executable = True,
 )

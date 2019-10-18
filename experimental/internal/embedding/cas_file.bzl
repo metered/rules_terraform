@@ -50,26 +50,27 @@ def _impl(ctx):
 #
 file_uploader = rule(
     _impl,
-    attrs = hash_tools + {
-        "src": attr.label(
+    attrs = dict(
+        hash_tools.items(),
+        src = attr.label(
             allow_single_file = True,
             mandatory = True,
         ),
-        "url_prefix": attr.string(
+        url_prefix = attr.string(
             mandatory = True,
             doc = "Prefix of URL where this file should be published (eg 's3://my-bucket-name/')",
         ),
-        "_casfile_url": attr.label(
+        _casfile_url = attr.label(
             default = Label("//experimental/internal/embedding:casfile_url"),
             cfg = "host",
             executable = True,
         ),
-        "_casfile_publisher": attr.label(
+        _casfile_publisher = attr.label(
             default = Label("//experimental/internal/embedding:casfile_publisher"),
             cfg = "host",
             executable = True,
         ),
-    },
+    ),
     outputs = {
         "out": "%{name}.url",
     },

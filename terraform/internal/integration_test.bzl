@@ -38,8 +38,9 @@ def _integration_test_impl(ctx):
 terraform_integration_test = rule(
     test = True,
     implementation = _integration_test_impl,
-    attrs = content_publisher_attrs + {
-        "terraform_workspace": attr.label(
+    attrs = dict(
+        content_publisher_attrs.items(),
+        terraform_workspace = attr.label(
             doc = "TF Workspace to spin up before testing & tear down after testing.",
             mandatory = True,
             executable = True,
@@ -47,26 +48,26 @@ terraform_integration_test = rule(
             providers = [TerraformWorkspaceInfo],
             aspects = [content_publisher_aspect],
         ),
-        "srctest": attr.label(
+        srctest = attr.label(
             doc = "Label of source test to wrap",
             mandatory = True,
             executable = True,
             cfg = "target",  # 'host' does not work for jvm source tests, because it launches with @embedded_jdk//:jar instead of @local_jdk//:jar
             aspects = [content_publisher_aspect],
         ),
-        "_runner_template": attr.label(
+        _runner_template = attr.label(
             default = "//terraform/internal:integration_test_runner.sh.tpl",
             allow_single_file = True,
         ),
-        "_stern": attr.label(
+        _stern = attr.label(
             executable = True,
             cfg = "host",
             default = "@tool_stern",
         ),
-        "_kubectl": attr.label(
+        _kubectl = attr.label(
             executable = True,
             cfg = "host",
             default = "@tool_kubectl",
         ),
-    },
+    )
 )

@@ -214,7 +214,7 @@ def _resolve_srcs(
     args.add("--root_resolved_output", root_resolved_srcs_output)
     for f in srcs:
         args.add("--input", f)
-    for m in modules:
+    for m in modules.to_list():
         info = m[TerraformModuleInfo]
         if not getattr(info, "modulepath"):
             fail("Implementation error. %s's TerraformModuleInfo provider has no 'modulepath' field." % ctx.label, attr = "deps")
@@ -343,6 +343,6 @@ def module_impl(ctx, modulepath = None):
 
 terraform_module = rule(
     module_impl,
-    attrs = module_tool_attrs + _module_attrs,
+    attrs = dict(module_tool_attrs.items() + _module_attrs.items()),
     outputs = module_outputs,
 )

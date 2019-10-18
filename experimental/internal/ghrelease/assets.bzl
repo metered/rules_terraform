@@ -84,19 +84,20 @@ def _impl(ctx):
 
 ghrelease_assets = rule(
     _impl,
-    attrs = content_publisher_attrs + {
-        "bazel_flags": attr.string_list(default = []),
-        "env": attr.string_dict(default = {}),
-        "data": attr.label_list(
+    attrs = dict(
+        content_publisher_attrs.items(),
+        bazel_flags = attr.string_list(default = []),
+        env = attr.string_dict(default = {}),
+        data = attr.label_list(
             default = [],
             aspects = [content_publisher_aspect],
             #allow_files = True,
         ),
-        "_assets_runner": attr.label(
+        _assets_runner = attr.label(
             default = Label("//experimental/internal/ghrelease:assets_runner"),
             executable = True,
             cfg = "host",
         ),
-    },
+    ),
     executable = True,
 )

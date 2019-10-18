@@ -1,6 +1,6 @@
 load(":providers.bzl", "TerraformModuleInfo", "TerraformPluginInfo", "TerraformWorkspaceInfo", "tf_workspace_files_prefix")
 load(":module.bzl", "module_impl", "module_outputs", "module_tool_attrs")
-load(":terraform_lib.bzl", "create_launcher")
+load(":launcher.bzl", "create_launcher")
 load(
     "//experimental/internal/embedding:content_publisher.bzl",
     "content_publisher_aspect",
@@ -102,7 +102,7 @@ def _workspace_impl(ctx):
 terraform_workspace = rule(
     _workspace_impl,
     executable = True,
-    attrs = module_tool_attrs + content_publisher_attrs + _workspace_attrs,
+    attrs = dict(module_tool_attrs.items() + content_publisher_attrs.items() + _workspace_attrs.items()),
     outputs = module_outputs,
 )
 
@@ -126,7 +126,7 @@ def terraform_workspace_macro(name, **kwargs):
         name = "%s.init" % name,
         outs = ["%s.init.sh" % name],
         cmd = TERRAFORM_SCRIPT.format(
-            command = "init"
+            command = "init",
             package = native.package_name(),
             tf_workspace_files_prefix = tf_workspace_files_prefix(),
         ),
@@ -137,7 +137,7 @@ def terraform_workspace_macro(name, **kwargs):
         name = "%s.apply" % name,
         outs = ["%s.apply.sh" % name],
         cmd = TERRAFORM_SCRIPT.format(
-            command = "apply"
+            command = "apply",
             package = native.package_name(),
             tf_workspace_files_prefix = tf_workspace_files_prefix(),
         ),
@@ -150,7 +150,7 @@ def terraform_workspace_macro(name, **kwargs):
         name = "%s.destroy" % name,
         outs = ["%s.destroy.sh" % name],
         cmd = TERRAFORM_SCRIPT.format(
-            command = "destroy"
+            command = "destroy",
             package = native.package_name(),
             tf_workspace_files_prefix = tf_workspace_files_prefix(),
         ),

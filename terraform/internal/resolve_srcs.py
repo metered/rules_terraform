@@ -5,7 +5,10 @@ import io
 import json
 import re
 import tarfile
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from collections import namedtuple
 from os.path import basename
 
@@ -82,14 +85,14 @@ def main(args):
             parts = ModuleSourceRgx.split(f.read())
         # non-matched content is always returned first
         content = parts.pop(0)
-        root_output.write(content)
-        module_output.write(content)
+        root_output.write(content.encode())
+        module_output.write(content.encode())
         # iterate over each piece of content & associated capture group
         num_capture_groups = 2
         for prefix, label, suffix in [parts[i:i + num_capture_groups + 1]
                                       for i in range(0, len(parts), num_capture_groups + 1)]:
-            root_output.write(prefix)
-            module_output.write(prefix)
+            root_output.write(prefix.encode())
+            module_output.write(prefix.encode())
             modulepath = embeds.get(label)
             if not modulepath:
                 raise ValueError("No matching label found for '%s'. "
@@ -99,11 +102,11 @@ def main(args):
             module_replacement = str('"../%s"' % modulepath)
             root_replacement = str('"./modules/%s"' % modulepath)
 
-            root_output.write(root_replacement)
-            root_output.write(suffix)
+            root_output.write(root_replacement.encode())
+            root_output.write(suffix.encode())
 
-            module_output.write(module_replacement)
-            module_output.write(suffix)
+            module_output.write(module_replacement.encode())
+            module_output.write(suffix.encode())
 
         root_filename = file_basename
         module_filename = file_basename
@@ -111,12 +114,12 @@ def main(args):
         root_output_value = root_output.getvalue()
         root_tarinfo = tarfile.TarInfo(root_filename)
         root_tarinfo.size = len(root_output_value)
-        root_resolved_output.addfile(root_tarinfo, StringIO(root_output_value))
+        root_resolved_output.addfile(root_tarinfo, io.BytesIO(root_output_value))
 
         module_output_value = module_output.getvalue()
         module_tarinfo = tarfile.TarInfo(module_filename)
         module_tarinfo.size = len(module_output_value)
-        module_resolved_output.addfile(module_tarinfo, StringIO(module_output_value))
+        module_resolved_output.addfile(module_tarinfo, io.BytesIO(module_output_value))
 
     if unseen_replacements:
         raise ValueError(

@@ -106,13 +106,13 @@ def embed(args):
                             raise ValueError("No matching label found for '%s'. "
                                              "Are you sure it's listed as a dependency?" % label)
                         unseen_replacements.discard(replacement)
-                        output_content.write(replacement)
+                        output_content.write(replacement.encode())
                 else:
                     is_label = True
-                    output_content.write(s)
+                    output_content.write(s.encode())
             if idx > 0 and args.output_delimiter:
                 output.write(args.output_delimiter)
-            output.write(output_content.getvalue())
+            output.write(output_content.getvalue().decode())
     if unseen_replacements:
         raise ValueError(
             "Unreferenced dependencies. Either reference them in the template, "

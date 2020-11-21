@@ -94,7 +94,7 @@ def put_file(output_path, src=None, content=None, overwrite=False):
             raise AssertionError("Target file already exists: '%s'" % output_path)
     # create the parent dir
     try:
-        os.makedirs(os.path.dirname(output_path), mode=0755)
+        os.makedirs(os.path.dirname(output_path), mode=0o755)
     except OSError as e:
         # ignore if existing dir, but raise otherwise
         if e.errno != errno.EEXIST:
@@ -126,7 +126,7 @@ def main(args):
             raise e
     try:
         # create the parent dir
-        os.makedirs(os.path.dirname(tfroot), mode=0755)
+        os.makedirs(os.path.dirname(tfroot), mode=0o755)
     except OSError as e:
         # ignore if existing dir, but raise otherwise
         if e.errno != errno.EEXIST:

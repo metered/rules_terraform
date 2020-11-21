@@ -142,7 +142,6 @@ def terraform_repositories():
         name = "py_s3transfer",
         sha256 = "90dc18e028989c609146e241ea153250be451e05ecc0c2832565231dacdf59c1",
         urls = ["https://files.pythonhosted.org/packages/9a/66/c6a5ae4dbbaf253bd662921b805e4972451a6d214d0dc9fb3300cb642320/s3transfer-0.1.13.tar.gz"],
-        deps = ["@py_futures"],
     )
     _maybe(
         _pip_package,
@@ -156,12 +155,6 @@ def terraform_repositories():
         name = "py_six",
         sha256 = "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9",
         urls = ["https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"],
-    )
-    _maybe(
-        _pip_package,
-        name = "py_futures",
-        sha256 = "9ec02aa7d674acb8618afb127e27fde7fc68994c0437ad759fa094a574adb265",
-        urls = ["https://files.pythonhosted.org/packages/1f/9e/7b2ff7e965fc654592269f2906ade1c7d705f1bf25b7d469fa153f7d19eb/futures-3.2.0.tar.gz"],
     )
     _maybe(
         git_repository,

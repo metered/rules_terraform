@@ -244,7 +244,7 @@ def _create_root_bundle(ctx, output, root_resolved_srcs, module_info):
     inputs += [root_resolved_srcs]
     if module_info.file_map:
         for path, file in module_info.file_map.items():
-            args.add_all("--input_file", [path, file])
+            args.add_all("--input_file", [path, file], expand_directories=False)
             inputs += [file]
     if module_info.file_tars:
         transitive += [module_info.file_tars]
@@ -262,7 +262,7 @@ def _create_root_bundle(ctx, output, root_resolved_srcs, module_info):
             transitive += [m.file_tars]
             if getattr(m, "file_map"):
                 for path, file in m.file_map.items():
-                    args.add_all("--input_file", ["modules/%s/%s" % (m.modulepath, path), file])
+                    args.add_all("--input_file", ["modules/%s/%s" % (m.modulepath, path), file], expand_directories=False)
                     inputs += [file]
     ctx.actions.run(
         inputs = depset(direct = inputs, transitive = transitive),

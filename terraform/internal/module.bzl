@@ -3,7 +3,7 @@ load("//experimental/internal/embedding:embedder.bzl", "get_valid_labels")
 
 _module_attrs = {
     "srcs": attr.label_list(
-        allow_files = [".tf"],
+        allow_files = [".tf", ".tf.json"],
         default = [],
     ),
     "data": attr.label_list(

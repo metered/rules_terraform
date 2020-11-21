@@ -14,7 +14,7 @@ from os.path import basename
 
 import sys
 
-ModuleSourceRgx = re.compile('(\s*["]?source["]?\s*=\s*)"([@/:].*?)"')
+ModuleSourceRgx = re.compile('(\s*["]?source["]?\s*[:=]\s*)"([@/:].*?)"')
 
 parser = argparse.ArgumentParser(
     fromfile_prefix_chars='@',

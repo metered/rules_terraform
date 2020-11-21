@@ -10,7 +10,7 @@ load(
 
 _workspace_attrs = {
     "srcs": attr.label_list(
-        allow_files = [".tf", ".tfvars"],
+        allow_files = [".tf",  ".tf.json", ".tfvars", ".tfvars.json"],
         aspects = [content_publisher_aspect],
     ),
     "embed": attr.label_list(

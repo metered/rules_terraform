@@ -106,6 +106,43 @@ terraform_workspace = rule(
     outputs = module_outputs,
 )
 
+def _terraform_output_impl(ctx):
+    json = ctx.outputs.json
+    ctx.actions.run_shell(
+        tools = [ctx.executable._terraform],
+        inputs = [ctx.file.tfstate],
+        outputs = [json],
+        command = "{terraform} output -state={tfstate} -json > {out}".format(
+            tfstate = ctx.file.tfstate.path,
+            out = json.path,
+            terraform = ctx.executable._terraform.path,
+        ),
+    )
+
+    return [
+        DefaultInfo(
+            files = depset(direct = [json])
+        ),
+    ]
+
+terraform_output = rule(
+    _terraform_output_impl,
+    attrs = {
+        "tfstate": attr.label(
+            mandatory = True,
+            allow_single_file = True,
+        ),
+        "_terraform": attr.label(
+            default = Label("@tool_terraform"),
+            executable = True,
+            cfg = "host",
+        ),
+    },
+    outputs = {
+        "json": "%{name}.json",
+    }
+)
+
 TERRAFORM_SCRIPT = """echo '#!/usr/bin/env bash
             set -euo pipefail
             terraform="$$BUILD_WORKSPACE_DIRECTORY/{package}/{tf_workspace_files_prefix}/.terraform/terraform.sh"
@@ -116,10 +153,17 @@ TERRAFORM_SCRIPT = """echo '#!/usr/bin/env bash
             fi
             ' > $@"""
 
-def terraform_workspace_macro(name, **kwargs):
+def terraform_workspace_macro(name, *, visibility = None, **kwargs):
     terraform_workspace(
         name = name,
+        visibility = visibility,
         **kwargs
+    )
+
+    terraform_output(
+        name = "%s.output" % name,
+        visibility = visibility,
+        tfstate = tf_workspace_files_prefix() + "/terraform.tfstate",
     )
 
     native.genrule(

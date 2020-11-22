@@ -27,14 +27,24 @@ _module_attrs = {
     "modulepath": attr.string(),
 }
 
-module_outputs = {
-    "out": "%{name}.tar.gz",
-    "docs_md": "%{name}_docs.md",
-    "docs_json": "%{name}_docs.json",
-    "graph": "%{name}_graph.dot",
-}
+def module_outputs(name, generate_docs):
+    outputs = {
+        "out": "%{name}.tar.gz",
+        "graph": "%{name}_graph.dot",
+    }
+
+    if generate_docs:
+        outputs.update({
+            "docs_md": "%{name}_docs.md",
+            "docs_json": "%{name}_docs.json",
+        })
+
+    return outputs
 
 module_tool_attrs = {
+    "generate_docs": attr.bool(
+        default = False,
+    ),
     "_terraform_docs": attr.label(
         default = Label("@tool_terraform_docs"),
         executable = True,
@@ -296,16 +306,18 @@ def module_impl(ctx, modulepath = None):
     )
 
     # generate docs from sources
-    _generate_docs(
-        ctx,
-        srcs,
-        md_output = ctx.outputs.docs_md,
-        json_output = ctx.outputs.docs_json,
-    )
+    if ctx.attr.generate_docs:
+        _generate_docs(
+            ctx,
+            srcs,
+            md_output = ctx.outputs.docs_md,
+            json_output = ctx.outputs.docs_json,
+        )
 
     # collect files & add generated docs
     file_map, file_tars = _collect_data(ctx)
-    file_map["README.md"] = ctx.outputs.docs_md
+    if ctx.attr.generate_docs:
+        file_map["README.md"] = ctx.outputs.docs_md
 
     # collect plugins & we can finally create our TerraformModuleInfo!
     plugins = _collect_plugins(ctx)
@@ -331,14 +343,21 @@ def module_impl(ctx, modulepath = None):
         output = ctx.outputs.graph,
     )
 
+    providers = [
+        module_info,
+        DefaultInfo(files = depset(direct = [ctx.outputs.out])),
+    ]
+
+    if ctx.attr.generate_docs:
+        providers.append(
+            OutputGroupInfo(docs = [ctx.outputs.docs_md]),
+        )
+
+
     # return our module_info on a struct so other things can use it
     return struct(
         terraform_module_info = module_info,
-        providers = [
-            module_info,
-            DefaultInfo(files = depset(direct = [ctx.outputs.out])),
-            OutputGroupInfo(docs = [ctx.outputs.docs_md]),
-        ],
+        providers = providers,
     )
 
 terraform_module = rule(
